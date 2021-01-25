@@ -1,11 +1,9 @@
-//
-// Main.cpp
-//
-
 #include "pch.h"
 #include "Game.h"
+#include "Configuration.h"
 
 using namespace DirectX;
+using namespace tde;
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
@@ -29,10 +27,14 @@ extern "C"
 }
 
 // Entry point
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+    // load configuration
+    Configuration::Initialize();
+    Configuration::GetInstance()->LoadCfgFile("default.cfg");
 
     if (!XMVerifyCPUSupport())
         return 1;

@@ -5,6 +5,9 @@
 
 #pragma once
 
+// Use UNICODE
+#define UNICODE
+
 #include <winsdkver.h>
 #define _WIN32_WINNT 0x0601
 #include <sdkddkver.h>
@@ -28,6 +31,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <shellapi.h>
 
 #include <wrl/client.h>
 
@@ -48,8 +52,10 @@
 #include <exception>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
-#include <stdio.h>
+#include <cstdio>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
