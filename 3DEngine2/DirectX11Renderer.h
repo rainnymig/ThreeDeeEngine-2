@@ -41,11 +41,12 @@ namespace tde
 										~DirectX11Renderer() = default;
 
 		virtual void					Render(
-											const StepTimer&				aTimer) override;
+											const double		aDeltaTime) override;
+		void							Clear();
 		void							Present();
 		void							AddToRenderList(
 											std::shared_ptr<IRenderable>	apRenderable);
-		bool							OnWindowSizeChanged(int width, int height);
+		void							OnWindowSizeChanged(int aWidth, int aHeight) override;
 
 		auto							GetFactory() const noexcept { return mpDxgiFactory.Get(); }
 		auto							GetDevice() const noexcept { return mpD3d11Device.Get(); }

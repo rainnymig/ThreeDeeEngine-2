@@ -1,4 +1,5 @@
 #pragma once
+#include "GameTimer.h"
 
 namespace tde
 {
@@ -14,11 +15,22 @@ namespace tde
 												ConstructorTag			aConstructorTag);
 											~Game();
 
-		void								Run();
+		int									Run();
 
 	private:
-		std::unique_ptr<Window>				mWindow;
-		std::unique_ptr<IRenderer>			mRenderer;
+		std::unique_ptr<Window>				mpWindow;
+		std::unique_ptr<IRenderer>			mpRenderer;
+
+		GameTimer							mGameTimer;
+		int									mFixUpdateFrequency;
+		double								mFixUpdatePeriod;
+
+		bool								mIsGameRunning = false;
+
+		void								PrivStart();
+		void								PrivFixUpdate();
+		void								PrivUpdate(const double aDeltaTime);
+		void								PrivRender(const double aDeltaTime);
 
 		void								PrivOnSuspending();
 		void								PrivOnResuming();

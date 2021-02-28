@@ -93,8 +93,22 @@ namespace tde
 	{
 	}
 
-	void DirectX11Renderer::Render(const StepTimer& aTimer)
+	void DirectX11Renderer::Render(const double aDeltaTime)
 	{
+		Clear();
+
+		// render!
+
+		Present();
+	}
+
+	void DirectX11Renderer::Clear()
+	{
+		mpD3d11ImmediateContext->ClearRenderTargetView(mpRenderTargetView.Get(), DirectX::Colors::DarkGray);
+		mpD3d11ImmediateContext->ClearDepthStencilView(mpDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		mpD3d11ImmediateContext->OMSetRenderTargets(1, mpRenderTargetView.GetAddressOf(), mpDepthStencilView.Get());
+
+		mpD3d11ImmediateContext->RSSetViewports(1, &mViewport);
 	}
 
 	void DirectX11Renderer::Present()
@@ -153,24 +167,21 @@ namespace tde
 		mRenderableList.emplace_back(apRenderable);
 	}
 
-	bool DirectX11Renderer::OnWindowSizeChanged(int width, int height)
+	void DirectX11Renderer::OnWindowSizeChanged(int aWidth, int aHeight)
 	{
 		RECT windowRect;
 		windowRect.left = 0;
 		windowRect.top = 0;
-		windowRect.right = width;
-		windowRect.bottom = height;
+		windowRect.right = aWidth;
+		windowRect.bottom = aHeight;
 
 		if (windowRect == mWindowRect)
 		{
 			PrivUpdateColorSpace();
-
-			return false;
 		}
 
 		mWindowRect = windowRect;
 		PrivCreateWindowSizeDependentResources();
-		return true;
 	}
 
 	void DirectX11Renderer::PrivCreateDeviceResources()
@@ -230,7 +241,7 @@ namespace tde
 		{
 			ThrowIfFailed(D3D11CreateDevice(
 				adapter.Get(),
-				D3D_DRIVER_TYPE_HARDWARE,
+				D3D_DRIVER_TYPE_UNKNOWN,	//	When creating a device from an existing adapter (i.e. pAdapter is non-NULL), DriverType must be D3D_DRIVER_TYPE_UNKNOWN.
 				nullptr,
 				creationFlags,
 				featureLevels,

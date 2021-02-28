@@ -29,7 +29,7 @@ namespace tde
 			mSecondsPerTick = 1.0 / static_cast<double>(freq.QuadPart);
 		}
 
-		double getTotalTime() const
+		double GetTotalTime() const
 		{
 			if (mStopped)
 			{
@@ -40,7 +40,7 @@ namespace tde
 				return (mCurrentTick - mTotalstoppedTick - mStartTick) * mSecondsPerTick;
 			}
 		}
-		double getDeltaTime() const
+		double GetDeltaTime() const
 		{
 			if (mStopped)
 			{
@@ -49,7 +49,7 @@ namespace tde
 			return (mCurrentTick - mPreviousTick) * mDeltaTimeSecond;
 		}
 
-		void reset()
+		void Reset()
 		{
 			mStartTick = 0;
 			mCurrentTick = 0;
@@ -57,7 +57,7 @@ namespace tde
 			mTotalstoppedTick = 0;
 			mPreviousTick = 0;
 		}
-		void start()
+		void Start()
 		{
 			if (!mStopped)
 			{
@@ -72,7 +72,7 @@ namespace tde
 			mCurrentTick = mStartTick;
 			mPreviousTick = mStartTick;
 		}
-		void stop()
+		void Stop()
 		{
 			if (mStopped)
 			{
@@ -86,7 +86,7 @@ namespace tde
 
 			mStopped = true;
 		}
-		void tick()
+		void Tick()
 		{
 			mPreviousTick = mCurrentTick;
 			if (!QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentTick))

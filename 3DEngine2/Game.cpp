@@ -7,9 +7,6 @@
 
 namespace tde
 {
-    const static UINT DEFAULT_WINDOW_WIDTH  = 800;
-    const static UINT DEFAULT_WINDOW_HEIGHT = 600;
-
 	std::unique_ptr<Game> tde::Game::MakeGame(HINSTANCE ahInstance)
 	{
         static UINT classId = 1;
@@ -33,8 +30,8 @@ namespace tde
         {
             return nullptr;
         }
-        UINT clientWidth = Configuration::GetInstance()->GetIntOrDefault("MainWindow.Width", DEFAULT_WINDOW_WIDTH);
-        UINT clientHeight = Configuration::GetInstance()->GetIntOrDefault("MainWindow.Height", DEFAULT_WINDOW_HEIGHT);
+        UINT clientWidth = Configuration::GetInstance()->GetInt("MainWindow.Width");
+        UINT clientHeight = Configuration::GetInstance()->GetInt("MainWindow.Height");
 
         RECT cliendRect = { 0, 0, static_cast<LONG>(clientWidth), static_cast<LONG>(clientHeight) };
         AdjustWindowRect(&cliendRect, WS_OVERLAPPEDWINDOW, FALSE);
@@ -61,13 +58,13 @@ namespace tde
 
         //  create the Game object
 		std::unique_ptr<Game> pGame = std::make_unique<Game>(ConstructorTag());
-        pGame->mWindow = std::move(pWindow);
-        pGame->mRenderer = std::move(pRenderer);
+        pGame->mpWindow = std::move(pWindow);
+        pGame->mpRenderer = std::move(pRenderer);
 
         //  save the pointer to the Game object so that you can use its members in WndProc
-        SetWindowLongPtr(pWindow->GetWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pGame.get()));
+        SetWindowLongPtr(pGame->mpWindow->GetWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pGame.get()));
 
-        pGame->mWindow->Show();
+        pGame->mpWindow->Show();
 
 		return pGame;
 	}
@@ -81,9 +78,76 @@ namespace tde
 	{
 	}
 
-	void Game::Run()
+	int Game::Run()
 	{
+        mFixUpdateFrequency = Configuration::GetInstance()->GetInt("Game.FixUpdateFrequency");
+        mFixUpdatePeriod = 1.0 / mFixUpdateFrequency;
+
+        const int maxFixUpdatesPerFrame = Configuration::GetInstance()->GetInt("Game.MaxFixUpdatesPerFrame");
+     
+        //  setup the all the things
+        PrivStart();
+
+        double accumulatedFixUpdateTime = 0.0;
+        double deltaTime = 0.0;
+        int fixUpdatesThisFrame = 0;
+        mGameTimer.Reset();
+        mGameTimer.Start();
+
+        MSG msg = {};
+        mIsGameRunning = true;
+        while (mIsGameRunning)
+        {
+            while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+
+                if (msg.message == WM_QUIT)
+                {
+                    mIsGameRunning = false;
+                }
+            }
+
+            mGameTimer.Tick();
+            deltaTime = mGameTimer.GetDeltaTime();
+            accumulatedFixUpdateTime += deltaTime;
+            fixUpdatesThisFrame = 0;
+
+            while (fixUpdatesThisFrame < maxFixUpdatesPerFrame && accumulatedFixUpdateTime > mFixUpdatePeriod)
+            {
+                accumulatedFixUpdateTime -= mFixUpdatePeriod;
+                PrivFixUpdate();
+                fixUpdatesThisFrame++;
+            }
+
+            PrivUpdate(deltaTime);
+            PrivRender(deltaTime);
+        }
+
+        return static_cast<int>(msg.wParam);
 	}
+
+    void Game::PrivStart()
+    {
+    }
+
+    void Game::PrivFixUpdate()
+    {
+        //  fix update
+    }
+
+    void Game::PrivUpdate(
+        const double aDeltaTime)
+    {
+        //  update
+    }
+
+    void Game::PrivRender(
+        const double aDeltaTime)
+    {
+        mpRenderer->Render(aDeltaTime);
+    }
 
     void Game::PrivOnSuspending()
     {
@@ -115,6 +179,7 @@ namespace tde
 
     void Game::PrivOnWindowSizeChanged(int aWidth, int aHeight)
     {
+        mpRenderer->OnWindowSizeChanged(aWidth, aHeight);
     }
 
     LRESULT Game::PrivWindProc(
@@ -123,27 +188,20 @@ namespace tde
 		WPARAM wParam, 
 		LPARAM lParam)
 	{
-        static bool s_in_sizemove = false;
-        static bool s_in_suspend = false;
-        static bool s_minimized = false;
-        static bool s_fullscreen = false;
-        // TODO: Set s_fullscreen to true if defaulting to fullscreen.
+        static bool isSizemoving = false;
+        static bool isSuspending = false;
+        static bool isMinimized = false;
+        static bool isFullscreen = false;
+        // TODO: Set isFullscreen to true if defaulting to fullscreen.
 
         auto game = reinterpret_cast<Game*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
         switch (message)
         {
         case WM_PAINT:
-            if (s_in_sizemove)
-            {
-                //game->Tick();
-            }
-            else
-            {
-                PAINTSTRUCT ps;
-                (void)BeginPaint(hWnd, &ps);
-                EndPaint(hWnd, &ps);
-            }
+            PAINTSTRUCT ps;
+            (void)BeginPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);
             break;
 
         case WM_MOVE:
@@ -156,37 +214,37 @@ namespace tde
         case WM_SIZE:
             if (wParam == SIZE_MINIMIZED)
             {
-                if (!s_minimized)
+                if (!isMinimized)
                 {
-                    s_minimized = true;
-                    if (!s_in_suspend && game)
+                    isMinimized = true;
+                    if (!isSuspending && game)
                     {
                         game->PrivOnSuspending();
                     }
-                    s_in_suspend = true;
+                    isSuspending = true;
                 }
             }
-            else if (s_minimized)
+            else if (isMinimized)
             {
-                s_minimized = false;
-                if (s_in_suspend && game)
+                isMinimized = false;
+                if (isSuspending && game)
                 {
                     game->PrivOnResuming();
                 }
-                s_in_suspend = false;
+                isSuspending = false;
             }
-            else if (!s_in_sizemove)
+            else if (!isSizemoving)
             {
                 game->PrivOnWindowSizeChanged(LOWORD(lParam), HIWORD(lParam));
             }
             break;
 
         case WM_ENTERSIZEMOVE:
-            s_in_sizemove = true;
+            isSizemoving = true;
             break;
 
         case WM_EXITSIZEMOVE:
-            s_in_sizemove = false;
+            isSizemoving = false;
             if (game)
             {
                 RECT rc;
@@ -223,21 +281,21 @@ namespace tde
             switch (wParam)
             {
             case PBT_APMQUERYSUSPEND:
-                if (!s_in_suspend && game)
+                if (!isSuspending && game)
                 {
                     game->PrivOnSuspending();
                 }
-                s_in_suspend = true;
+                isSuspending = true;
                 return TRUE;
 
             case PBT_APMRESUMESUSPEND:
-                if (!s_minimized)
+                if (!isMinimized)
                 {
-                    if (s_in_suspend && game)
+                    if (isSuspending && game)
                     {
                         game->PrivOnResuming();
                     }
-                    s_in_suspend = false;
+                    isSuspending = false;
                 }
                 return TRUE;
             }
@@ -251,13 +309,13 @@ namespace tde
             if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
             {
                 // Implements the classic ALT+ENTER fullscreen toggle
-                if (s_fullscreen)
+                if (isFullscreen)
                 {
                     SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
                     SetWindowLongPtr(hWnd, GWL_EXSTYLE, 0);
 
-                    int width = Configuration::GetInstance()->GetIntOrDefault("MainWindow.Width", DEFAULT_WINDOW_WIDTH);
-                    int height = Configuration::GetInstance()->GetIntOrDefault("MainWindow.Height", DEFAULT_WINDOW_HEIGHT);
+                    int width = Configuration::GetInstance()->GetInt("MainWindow.Width");
+                    int height = Configuration::GetInstance()->GetInt("MainWindow.Height");
 
                     ShowWindow(hWnd, SW_SHOWNORMAL);
 
@@ -273,13 +331,13 @@ namespace tde
                     ShowWindow(hWnd, SW_SHOWMAXIMIZED);
                 }
 
-                s_fullscreen = !s_fullscreen;
+                isFullscreen = !isFullscreen;
             }
             break;
 
         case WM_MENUCHAR:
-            // A menu is active and the user presses a key that does not correspond
-            // to any mnemonic or accelerator key. Ignore so we don't produce an error beep.
+            //  A menu is active and the user presses a key that does not correspond
+            //  to any mnemonic or accelerator key. Ignore so we don't produce an error beep.
             return MAKELRESULT(0, MNC_CLOSE);
         }
 
