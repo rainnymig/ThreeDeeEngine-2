@@ -1,5 +1,5 @@
 //
-// Game.h
+// GameDR.h
 //
 
 #pragma once
@@ -10,18 +10,18 @@
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
-class Game final : public DX::IDeviceNotify
+class GameDR final : public tde::IDeviceNotify
 {
 public:
 
-    Game() noexcept(false);
-    ~Game() = default;
+    GameDR() noexcept(false);
+    ~GameDR() = default;
 
-    Game(Game&&) = default;
-    Game& operator= (Game&&) = default;
+    GameDR(GameDR&&) = default;
+    GameDR& operator= (GameDR&&) = default;
 
-    Game(Game const&) = delete;
-    Game& operator= (Game const&) = delete;
+    GameDR(GameDR const&) = delete;
+    GameDR& operator= (GameDR const&) = delete;
 
     // Initialization and management
     void Initialize(HWND window, int width, int height);
@@ -46,7 +46,7 @@ public:
 
 private:
 
-    void Update(DX::StepTimer const& timer);
+    void Update(tde::StepTimer const& timer);
     void Render();
 
     void Clear();
@@ -55,8 +55,8 @@ private:
     void CreateWindowSizeDependentResources();
 
     // Device resources.
-    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+    std::unique_ptr<tde::DeviceResources>    m_deviceResources;
 
     // Rendering loop timer.
-    DX::StepTimer                           m_timer;
+    tde::StepTimer                           m_timer;
 };

@@ -7,7 +7,7 @@
 #include "DeviceResources.h"
 
 using namespace DirectX;
-using namespace DX;
+using namespace tde;
 
 using Microsoft::WRL::ComPtr;
 

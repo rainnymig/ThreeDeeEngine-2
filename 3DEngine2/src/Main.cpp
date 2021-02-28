@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "Game.h"
+#include "GameDR.h"
 #include "Configuration.h"
+#include "Window.h"
 
 using namespace DirectX;
 using namespace tde;
@@ -14,7 +15,7 @@ using namespace tde;
 
 namespace
 {
-    std::unique_ptr<Game> g_game;
+    std::unique_ptr<GameDR> g_game;
 }
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -27,7 +28,7 @@ extern "C"
 }
 
 // Entry point
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, _In_ int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -43,50 +44,58 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (FAILED(hr))
         return 1;
 
-    g_game = std::make_unique<Game>();
+    g_game = std::make_unique<GameDR>();
 
     // Register class and create window
-    {
-        // Register class
-        WNDCLASSEXW wcex = {};
-        wcex.cbSize = sizeof(WNDCLASSEXW);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = WndProc;
-        wcex.hInstance = hInstance;
-        wcex.hIcon = LoadIconW(hInstance, L"IDI_ICON");
-        wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-        wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-        wcex.lpszClassName = L"_3DEngine2WindowClass";
-        wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
-        if (!RegisterClassExW(&wcex))
-            return 1;
+    // Register class
+    WNDCLASSEXW wcex = {};
+    wcex.cbSize = sizeof(WNDCLASSEXW);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIconW(hInstance, L"IDI_ICON");
+    wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+    wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+    wcex.lpszClassName = L"_3DEngine2WindowClass";
+    wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
+    if (!Window::RegisterWindow(&wcex))
+        return 1;
 
-        // Create window
-        int w, h;
-        g_game->GetDefaultSize(w, h);
+    // Create window
+    int w, h;
+    g_game->GetDefaultSize(w, h);
 
-        RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
+    RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
 
-        AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-        HWND hwnd = CreateWindowExW(0, L"_3DEngine2WindowClass", L"3DEngine2", WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
-            nullptr);
-        // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"_3DEngine2WindowClass", L"3DEngine2", WS_POPUP,
-        // to default to fullscreen.
+    std::unique_ptr<Window> mainWindow = Window::MakeWindow(0, L"_3DEngine2WindowClass", L"3DEngine2", WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
+        nullptr);
+    //HWND hwnd = CreateWindowExW(0, L"_3DEngine2WindowClass", L"3DEngine2", WS_OVERLAPPEDWINDOW,
+    //    CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
+    //    nullptr);
+    // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"_3DEngine2WindowClass", L"3DEngine2", WS_POPUP,
+    // to default to fullscreen.
 
-        if (!hwnd)
-            return 1;
+    //if (!hwnd)
+    //    return 1;
 
-        ShowWindow(hwnd, nCmdShow);
-        // TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
+    //ShowWindow(hwnd, nCmdShow);
+    // TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
+    mainWindow->Show();
+    //mainWindow.ToggleFullscreen();
 
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()) );
+    //SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()));
+    SetWindowLongPtr(mainWindow->GetWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(g_game.get()) );
 
-        GetClientRect(hwnd, &rc);
+    //GetClientRect(hwnd, &rc);
+    GetClientRect(mainWindow->GetWindowHandle(), &rc);
 
-        g_game->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
-    }
+    //g_game->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
+    g_game->Initialize(mainWindow->GetWindowHandle(), rc.right - rc.left, rc.bottom - rc.top);
+
+    
 
     // Main message loop
     MSG msg = {};
@@ -119,7 +128,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static bool s_fullscreen = false;
     // TODO: Set s_fullscreen to true if defaulting to fullscreen.
 
-    auto game = reinterpret_cast<Game*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    auto game = reinterpret_cast<GameDR*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
     switch (message)
     {

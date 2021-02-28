@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <exception>
 
-namespace DX
+namespace tde
 {
     // Helper class for animation and simulation timing.
     class StepTimer

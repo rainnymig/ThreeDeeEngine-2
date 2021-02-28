@@ -6,7 +6,7 @@
 #pragma once
 
 #include <winsdkver.h>
-#define _WIN32_WINNT 0x0601
+#define _WIN32_WINNT _WIN32_WINNT_WINBLUE
 #include <sdkddkver.h>
 
 // Use the C++ standard templated min/max
@@ -43,7 +43,11 @@
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 
+#include "Mouse.h"
+#include "Keyboard.h"
+
 #include <algorithm>
+#include <functional>
 #include <cmath>
 #include <cstdint>
 #include <exception>
@@ -51,6 +55,10 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <thread>
+#include <mutex>
+#include <list>
+#include <deque>
 
 #include <cstdio>
 
@@ -58,7 +66,11 @@
 #include <dxgidebug.h>
 #endif
 
-namespace DX
+#include "ConstructorTagHelper.h"
+
+#define RETURN_IF_FAILED(hr) if(FAILED(hr)){return hr;}
+
+namespace tde
 {
     // Helper class for COM exceptions
     class com_exception : public std::exception

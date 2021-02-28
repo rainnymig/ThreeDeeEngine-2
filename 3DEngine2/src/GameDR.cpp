@@ -1,9 +1,9 @@
 //
-// Game.cpp
+// GameDR.cpp
 //
 
 #include "pch.h"
-#include "Game.h"
+#include "GameDR.h"
 
 extern void ExitGame() noexcept;
 
@@ -11,14 +11,14 @@ using namespace DirectX;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game() noexcept(false)
+GameDR::GameDR() noexcept(false)
 {
-    m_deviceResources = std::make_unique<DX::DeviceResources>();
+    m_deviceResources = std::make_unique<tde::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);
 }
 
 // Initialize the Direct3D resources required to run.
-void Game::Initialize(HWND window, int width, int height)
+void GameDR::Initialize(HWND window, int width, int height)
 {
     m_deviceResources->SetWindow(window, width, height);
 
@@ -38,7 +38,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 #pragma region Frame Update
 // Executes the basic game loop.
-void Game::Tick()
+void GameDR::Tick()
 {
     m_timer.Tick([&]()
     {
@@ -49,7 +49,7 @@ void Game::Tick()
 }
 
 // Updates the world.
-void Game::Update(DX::StepTimer const& timer)
+void GameDR::Update(tde::StepTimer const& timer)
 {
     float elapsedTime = float(timer.GetElapsedSeconds());
 
@@ -60,7 +60,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 #pragma region Frame Render
 // Draws the scene.
-void Game::Render()
+void GameDR::Render()
 {
     // Don't try to render anything before the first Update.
     if (m_timer.GetFrameCount() == 0)
@@ -83,7 +83,7 @@ void Game::Render()
 }
 
 // Helper method to clear the back buffers.
-void Game::Clear()
+void GameDR::Clear()
 {
     m_deviceResources->PIXBeginEvent(L"Clear");
 
@@ -106,35 +106,35 @@ void Game::Clear()
 
 #pragma region Message Handlers
 // Message handlers
-void Game::OnActivated()
+void GameDR::OnActivated()
 {
     // TODO: Game is becoming active window.
 }
 
-void Game::OnDeactivated()
+void GameDR::OnDeactivated()
 {
     // TODO: Game is becoming background window.
 }
 
-void Game::OnSuspending()
+void GameDR::OnSuspending()
 {
     // TODO: Game is being power-suspended (or minimized).
 }
 
-void Game::OnResuming()
+void GameDR::OnResuming()
 {
     m_timer.ResetElapsedTime();
 
     // TODO: Game is being power-resumed (or returning from minimize).
 }
 
-void Game::OnWindowMoved()
+void GameDR::OnWindowMoved()
 {
     auto r = m_deviceResources->GetOutputSize();
     m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
-void Game::OnWindowSizeChanged(int width, int height)
+void GameDR::OnWindowSizeChanged(int width, int height)
 {
     if (!m_deviceResources->WindowSizeChanged(width, height))
         return;
@@ -145,7 +145,7 @@ void Game::OnWindowSizeChanged(int width, int height)
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const noexcept
+void GameDR::GetDefaultSize(int& width, int& height) const noexcept
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
     width = 800;
@@ -155,7 +155,7 @@ void Game::GetDefaultSize(int& width, int& height) const noexcept
 
 #pragma region Direct3D Resources
 // These are the resources that depend on the device.
-void Game::CreateDeviceDependentResources()
+void GameDR::CreateDeviceDependentResources()
 {
     auto device = m_deviceResources->GetD3DDevice();
 
@@ -164,17 +164,17 @@ void Game::CreateDeviceDependentResources()
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
-void Game::CreateWindowSizeDependentResources()
+void GameDR::CreateWindowSizeDependentResources()
 {
     // TODO: Initialize windows-size dependent objects here.
 }
 
-void Game::OnDeviceLost()
+void GameDR::OnDeviceLost()
 {
     // TODO: Add Direct3D resource cleanup here.
 }
 
-void Game::OnDeviceRestored()
+void GameDR::OnDeviceRestored()
 {
     CreateDeviceDependentResources();
 
