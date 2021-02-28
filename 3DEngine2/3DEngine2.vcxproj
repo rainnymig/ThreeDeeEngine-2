@@ -174,8 +174,6 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Job.cpp" />
     <ClCompile Include="src\common\Configuration.cpp" />
-    <ClCompile Include="src\common\DeviceResources.cpp" />
-    <ClCompile Include="src\GameDR.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -198,10 +196,7 @@
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="src\common\Configuration.h" />
     <ClInclude Include="src\common\ConstructorTagHelper.h" />
-    <ClInclude Include="src\common\DeviceResources.h" />
     <ClInclude Include="src\common\GameTimer.h" />
-    <ClInclude Include="src\common\StepTimer.h" />
-    <ClInclude Include="src\GameDR.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WorkDispatcher.h" />

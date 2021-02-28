@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "DirectX11Renderer.h"
 
-#include "StepTimer.h"
-
 using Microsoft::WRL::ComPtr;
 
 namespace tde

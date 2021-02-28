@@ -14,9 +14,6 @@
     <ClCompile Include="src\common\Configuration.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="Window.cpp">
       <Filter>Common</Filter>
@@ -33,7 +30,6 @@
     <ClCompile Include="DirectX11Renderer.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameDR.cpp" />
     <ClCompile Include="Game.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -51,12 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common\Configuration.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\DeviceResources.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\common\StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
@@ -78,10 +68,11 @@
     <ClInclude Include="IRenderer.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\ConstructorTagHelper.h" />
-    <ClInclude Include="src\GameDR.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="src\common\GameTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\ConstructorTagHelper.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
