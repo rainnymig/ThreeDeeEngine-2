@@ -15,22 +15,22 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="Window.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Job.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Worker.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="WorkDispatcher.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX11Renderer.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\common\DirectX11Renderer.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\Job.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\Window.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\WorkDispatcher.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\Worker.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -50,29 +50,29 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="Window.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Job.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Worker.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="WorkDispatcher.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX11Renderer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="IRenderer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Game.h" />
     <ClInclude Include="src\common\GameTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="src\common\ConstructorTagHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\common\DirectX11Renderer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\IRenderer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\Job.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\Window.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\WorkDispatcher.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\Worker.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
