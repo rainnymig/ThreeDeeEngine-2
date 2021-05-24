@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Game.h"
-#include "Configuration.h"
-#include "Window.h"
+#include "common/Configuration.h"
+#include "common/Window.h"
 
 using namespace DirectX;
 using namespace tde;
@@ -67,15 +67,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //wcex.hIconSm = LoadIconW(wcex.hInstance, L"IDI_ICON");
     //if (!Window::RegisterWindow(&wcex))
     //    return 1;
-
     // Create window
     //int w, h;
     //gGame->GetDefaultSize(w, h);
-
     //RECT rc = { 0, 0, static_cast<LONG>(w), static_cast<LONG>(h) };
-
     //AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-
     //std::unique_ptr<Window> mainWindow = Window::MakeWindow(0, L"_3DEngine2WindowClass", L"3DEngine2", WS_OVERLAPPEDWINDOW,
     //    CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
     //    nullptr);
@@ -84,26 +80,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     //    nullptr);
     // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"_3DEngine2WindowClass", L"3DEngine2", WS_POPUP,
     // to default to fullscreen.
-
     //if (!hwnd)
     //    return 1;
-
     //ShowWindow(hwnd, nCmdShow);
     // TODO: Change nCmdShow to SW_SHOWMAXIMIZED to default to fullscreen.
     //mainWindow->Show();
     //mainWindow.ToggleFullscreen();
-
     //SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(gGame.get()));
     //SetWindowLongPtr(mainWindow->GetWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(gGame.get()) );
-
     //GetClientRect(hwnd, &rc);
     //GetClientRect(mainWindow->GetWindowHandle(), &rc);
-
     //gGame->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
     //gGame->Initialize(mainWindow->GetWindowHandle(), rc.right - rc.left, rc.bottom - rc.top);
-
-    
-
     // Main message loop
     //MSG msg = {};
     //while (WM_QUIT != msg.message)

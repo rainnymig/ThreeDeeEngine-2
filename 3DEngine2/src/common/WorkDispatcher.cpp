@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "WorkDispatcher.h"
+#include "common/WorkDispatcher.h"
 
-#include "Job.h"
-#include "Worker.h"
+#include "common/Job.h"
+#include "common/Worker.h"
 
 namespace tde
 {

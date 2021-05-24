@@ -363,3 +363,6 @@ FodyWeavers.xsd
 
 # DirectX Toolkit
 DirectXTK/
+
+# assimp
+assimp/

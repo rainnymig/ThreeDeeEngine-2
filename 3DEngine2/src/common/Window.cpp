@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Window.h"
+#include "common/Window.h"
 
 namespace tde
 {

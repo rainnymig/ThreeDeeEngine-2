@@ -46,7 +46,7 @@ namespace tde
 			{
 				return 0.0;
 			}
-			return (mCurrentTick - mPreviousTick) * mDeltaTimeSecond;
+			return (mCurrentTick - mPreviousTick) * mSecondsPerTick;
 		}
 
 		void Reset()
@@ -68,7 +68,7 @@ namespace tde
 			{
 				throw std::exception("QueryPerformanceCounter failed by start");
 			}
-
+			mStopped = false;
 			mCurrentTick = mStartTick;
 			mPreviousTick = mStartTick;
 		}

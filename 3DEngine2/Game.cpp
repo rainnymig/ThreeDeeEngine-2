@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "Game.h"
-#include "Window.h"
-#include "IRenderer.h"
-#include "DirectX11Renderer.h"
-#include "Configuration.h"
+#include "common/Window.h"
+#include "common/DirectX11Renderer.h"
+#include "common/Configuration.h"
 
 namespace tde
 {
@@ -50,7 +49,7 @@ namespace tde
         }
         
         //  create the Renderer
-        std::unique_ptr<IRenderer> pRenderer = DirectX11Renderer::CreateDX11Renderer(pWindow->GetWindowHandle(), cliendRect);
+        std::unique_ptr<DirectX11Renderer> pRenderer = DirectX11Renderer::CreateDX11Renderer(pWindow->GetWindowHandle(), cliendRect);
         if (!pRenderer)
         {
             return nullptr;
@@ -125,11 +124,15 @@ namespace tde
             PrivRender(deltaTime);
         }
 
+        PrivDestroy();
+
         return static_cast<int>(msg.wParam);
 	}
 
     void Game::PrivStart()
     {
+        mpScene = std::make_unique<Scene>();
+        mpScene->Init(mpRenderer->GetDevice(), mpWindow->GetWindowHandle());
     }
 
     void Game::PrivFixUpdate()
@@ -140,13 +143,22 @@ namespace tde
     void Game::PrivUpdate(
         const double aDeltaTime)
     {
-        //  update
+        mpScene->Update(aDeltaTime);
     }
 
     void Game::PrivRender(
         const double aDeltaTime)
     {
-        mpRenderer->Render(aDeltaTime);
+        mpRenderer->Clear();
+
+        mpScene->Render(mpRenderer->GetImmediateContext(), aDeltaTime);
+
+        mpRenderer->Present();
+    }
+
+    void Game::PrivDestroy()
+    {
+        mpScene->Destroy();
     }
 
     void Game::PrivOnSuspending()
@@ -274,6 +286,8 @@ namespace tde
                 {
                     game->PrivOnDeactivated();
                 }
+                DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+                DirectX::Mouse::ProcessMessage(message, wParam, lParam);
             }
             break;
 
@@ -305,35 +319,51 @@ namespace tde
             PostQuitMessage(0);
             break;
 
-        case WM_SYSKEYDOWN:
-            if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
-            {
-                // Implements the classic ALT+ENTER fullscreen toggle
-                if (isFullscreen)
-                {
-                    SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
-                    SetWindowLongPtr(hWnd, GWL_EXSTYLE, 0);
-
-                    int width = Configuration::GetInstance()->GetInt("MainWindow.Width");
-                    int height = Configuration::GetInstance()->GetInt("MainWindow.Height");
-
-                    ShowWindow(hWnd, SW_SHOWNORMAL);
-
-                    SetWindowPos(hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
-                }
-                else
-                {
-                    SetWindowLongPtr(hWnd, GWL_STYLE, 0);
-                    SetWindowLongPtr(hWnd, GWL_EXSTYLE, WS_EX_TOPMOST);
-
-                    SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
-                    ShowWindow(hWnd, SW_SHOWMAXIMIZED);
-                }
-
-                isFullscreen = !isFullscreen;
-            }
+        case WM_INPUT:
+        case WM_MOUSEMOVE:
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_MOUSEWHEEL:
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONUP:
+        case WM_MOUSEHOVER:
+            DirectX::Mouse::ProcessMessage(message, wParam, lParam);
             break;
+
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+            break;
+
+        //case WM_SYSKEYDOWN:
+        //    if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
+        //    {
+        //        // Implements the classic ALT+ENTER fullscreen toggle
+        //        if (isFullscreen)
+        //        {
+        //            SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+        //            SetWindowLongPtr(hWnd, GWL_EXSTYLE, 0);
+        //            int width = Configuration::GetInstance()->GetInt("MainWindow.Width");
+        //            int height = Configuration::GetInstance()->GetInt("MainWindow.Height");
+        //            ShowWindow(hWnd, SW_SHOWNORMAL);
+        //            SetWindowPos(hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        //        }
+        //        else
+        //        {
+        //            SetWindowLongPtr(hWnd, GWL_STYLE, 0);
+        //            SetWindowLongPtr(hWnd, GWL_EXSTYLE, WS_EX_TOPMOST);
+        //            SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        //            ShowWindow(hWnd, SW_SHOWMAXIMIZED);
+        //        }
+        //        isFullscreen = !isFullscreen;
+        //    }
+        //    break;
 
         case WM_MENUCHAR:
             //  A menu is active and the user presses a key that does not correspond

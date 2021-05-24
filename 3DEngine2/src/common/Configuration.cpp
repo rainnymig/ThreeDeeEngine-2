@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Configuration.h"
+#include "common/Configuration.h"
 
 #include <iostream>
 #include <fstream>

@@ -33,6 +33,7 @@
 #include <wrl/client.h>
 
 #include <d3d11_1.h>
+#include <d3dcompiler.h>
 
 #if defined(NTDDI_WIN10_RS2)
 #include <dxgi1_6.h>
@@ -45,6 +46,11 @@
 
 #include "Mouse.h"
 #include "Keyboard.h"
+#include "DirectXHelpers.h"
+#include "CommonStates.h"
+#include "SimpleMath.h"
+
+#include "common/stb_image.h"
 
 #include <algorithm>
 #include <functional>
@@ -66,9 +72,11 @@
 #include <dxgidebug.h>
 #endif
 
-#include "ConstructorTagHelper.h"
+#include "common/ConstructorTagHelper.h"
 
 #define RETURN_IF_FAILED(hr) if(FAILED(hr)){return hr;}
+
+#define SAFE_RELEASE(aComPtr) {if(aComPtr){aComPtr->Release();} aComPtr.Reset();}
 
 namespace tde
 {

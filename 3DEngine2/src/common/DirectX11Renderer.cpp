@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "DirectX11Renderer.h"
+#include "common/DirectX11Renderer.h"
 
 using Microsoft::WRL::ComPtr;
 

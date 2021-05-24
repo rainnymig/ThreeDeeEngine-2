@@ -1,10 +1,11 @@
 #pragma once
-#include "GameTimer.h"
+#include "common/GameTimer.h"
+#include "game/Scene.h"
 
 namespace tde
 {
 	class Window;
-	class IRenderer;
+	class DirectX11Renderer;
 
 	class Game : public ConstructorTagHelper
 	{
@@ -19,7 +20,8 @@ namespace tde
 
 	private:
 		std::unique_ptr<Window>				mpWindow;
-		std::unique_ptr<IRenderer>			mpRenderer;
+		std::unique_ptr<DirectX11Renderer>	mpRenderer;
+		std::unique_ptr<Scene>				mpScene;
 
 		GameTimer							mGameTimer;
 		int									mFixUpdateFrequency;
@@ -31,6 +33,7 @@ namespace tde
 		void								PrivFixUpdate();
 		void								PrivUpdate(const double aDeltaTime);
 		void								PrivRender(const double aDeltaTime);
+		void								PrivDestroy();
 
 		void								PrivOnSuspending();
 		void								PrivOnResuming();
