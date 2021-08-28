@@ -24,7 +24,7 @@ namespace tde
 		std::unique_ptr<Scene>				mpScene;
 
 		GameTimer							mGameTimer;
-		int									mFixUpdateFrequency;
+		int									mFixUpdateFrequency = 60;
 		double								mFixUpdatePeriod;
 
 		bool								mIsGameRunning = false;

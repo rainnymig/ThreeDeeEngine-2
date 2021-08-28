@@ -35,7 +35,7 @@ namespace tde
 
 	PixelShader::~PixelShader()
 	{
-		mpPixelShader.Reset();
+		SAFE_RELEASE(mpPixelShader);
 	}
 
 	ID3D11PixelShader* PixelShader::GetPixelShader() const

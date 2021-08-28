@@ -115,7 +115,7 @@
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>5.0</ShaderModel>
       <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
@@ -138,7 +138,7 @@
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>5.0</ShaderModel>
       <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
@@ -166,7 +166,7 @@
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>5.0</ShaderModel>
       <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
@@ -193,7 +193,7 @@
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
     <FxCompile>
-      <ShaderModel>5.1</ShaderModel>
+      <ShaderModel>5.0</ShaderModel>
       <ObjectFileOutput>$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
@@ -212,8 +212,10 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\rendering\Camera.cpp" />
+    <ClCompile Include="src\rendering\Light.cpp" />
     <ClCompile Include="src\rendering\Model.cpp" />
     <ClCompile Include="src\rendering\PixelShader.cpp" />
+    <ClCompile Include="src\rendering\RenderingSystem.cpp" />
     <ClCompile Include="src\rendering\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -226,12 +228,14 @@
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\common\BaseCache.h" />
     <ClInclude Include="src\common\Configuration.h" />
     <ClInclude Include="src\common\ConstructorTagHelper.h" />
     <ClInclude Include="src\common\DirectX11Renderer.h" />
     <ClInclude Include="src\common\GameTimer.h" />
     <ClInclude Include="src\common\IRenderer.h" />
     <ClInclude Include="src\common\Job.h" />
+    <ClInclude Include="src\common\ServiceLocator.h" />
     <ClInclude Include="src\common\stb_image.h" />
     <ClInclude Include="src\common\Window.h" />
     <ClInclude Include="src\common\WorkDispatcher.h" />
@@ -242,8 +246,10 @@
     <ClInclude Include="src\game\Scene.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\rendering\Camera.h" />
+    <ClInclude Include="src\rendering\Light.h" />
     <ClInclude Include="src\rendering\Model.h" />
     <ClInclude Include="src\rendering\PixelShader.h" />
+    <ClInclude Include="src\rendering\RenderingSystem.h" />
     <ClInclude Include="src\rendering\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -252,8 +258,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\shaders\BasicVS.hlsl" />
-    <FxCompile Include="src\shaders\PhongPS.hlsl" />
+    <FxCompile Include="src\shaders\BasicVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\PhongPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -65,6 +65,7 @@
 #include <mutex>
 #include <list>
 #include <deque>
+#include <unordered_map>
 
 #include <cstdio>
 
@@ -72,11 +73,14 @@
 #include <dxgidebug.h>
 #endif
 
+// Link library dependencies
+#pragma comment(lib, "d3dcompiler.lib")
+
 #include "common/ConstructorTagHelper.h"
 
 #define RETURN_IF_FAILED(hr) if(FAILED(hr)){return hr;}
 
-#define SAFE_RELEASE(aComPtr) {if(aComPtr){aComPtr->Release();} aComPtr.Reset();}
+#define SAFE_RELEASE(aComPtr) {if(aComPtr){aComPtr.Reset();}}
 
 namespace tde
 {

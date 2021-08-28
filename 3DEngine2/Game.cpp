@@ -3,6 +3,10 @@
 #include "common/Window.h"
 #include "common/DirectX11Renderer.h"
 #include "common/Configuration.h"
+#include "common/ServiceLocator.h"
+#include "common/BaseCache.h"
+#include "rendering/PixelShader.h"
+#include "rendering/VertexShader.h"
 
 namespace tde
 {
@@ -59,6 +63,16 @@ namespace tde
 		std::unique_ptr<Game> pGame = std::make_unique<Game>(ConstructorTag());
         pGame->mpWindow = std::move(pWindow);
         pGame->mpRenderer = std::move(pRenderer);
+
+        //  create shader cache
+        if (!VertexShaderCacheLocator::Get())
+        {
+            VertexShaderCacheLocator::Provide(std::make_shared<BaseCache<std::string, std::shared_ptr<VertexShader>>>());
+        }
+        if (!PixelShaderCacheLocator::Get())
+        {
+            PixelShaderCacheLocator::Provide(std::make_shared<BaseCache<std::string, std::shared_ptr<PixelShader>>>());
+        }
 
         //  save the pointer to the Game object so that you can use its members in WndProc
         SetWindowLongPtr(pGame->mpWindow->GetWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pGame.get()));

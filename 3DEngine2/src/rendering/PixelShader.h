@@ -1,4 +1,6 @@
 #pragma once
+#include "common/ServiceLocator.h"
+#include "common/BaseCache.h"
 
 namespace tde
 {
@@ -16,4 +18,8 @@ namespace tde
 	private:
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> mpPixelShader;
 	};
+
+	using IPixelShaderCache = ICache<std::string, std::shared_ptr<PixelShader>>;
+	using PixelShaderCacheLocator = ServiceLocator<IPixelShaderCache>;
+	std::shared_ptr<IPixelShaderCache> PixelShaderCacheLocator::mpService = nullptr;
 }

@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "rendering/Model.h"
+#include "rendering/VertexShader.h"
+#include "rendering/PixelShader.h"
 
 namespace tde
 {
@@ -9,6 +11,34 @@ namespace tde
 
 	Model::~Model()
 	{
+	}
+
+	void Model::Draw(
+		DirectX::CXMMATRIX aWorldMatrix,
+		DirectX::CXMMATRIX aViewProjMatrix,	// world view projection matrix
+		ID3D11DeviceContext* apContext, 
+		std::shared_ptr<VertexShader> apVertexShader, 
+		std::shared_ptr<PixelShader> apPixelShader,
+		ID3D11Buffer** appLightBuffer) const
+	{
+		//	update matrices of vertex shader constant buffer
+		DirectX::XMMATRIX inverseWorld = DirectX::XMMatrixInverse(nullptr, aWorldMatrix);
+		VertexParams vParams{
+			aWorldMatrix, inverseWorld, aViewProjMatrix
+		};
+		apContext->UpdateSubresource(mpVertexParamsBuffer.Get(), 0, nullptr, &vParams, 0, 0);
+
+		apVertexShader->SetInputLayout(apContext);
+		apContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		apContext->VSSetShader(apVertexShader->GetVertexShader(), nullptr, 0);
+		apContext->VSSetConstantBuffers(0, 1, mpVertexParamsBuffer.GetAddressOf());
+		apContext->PSSetShader(apPixelShader->GetPixelShader(), nullptr, 0);
+		apContext->PSSetConstantBuffers(0, 1, appLightBuffer);
+
+		for (const auto& aMesh : mMeshes)
+		{
+			aMesh.Draw(aWorldMatrix, inverseWorld, aViewProjMatrix, apContext, apVertexShader, apPixelShader);
+		}
 	}
 
 	std::shared_ptr<Model> Model::CreateModelFromFile(const char* aPath)
@@ -43,6 +73,16 @@ namespace tde
 		{
 			DestroyBuffers();
 		}
+
+		//	create constant buffer for the vertex shader
+		D3D11_BUFFER_DESC bufDesc;
+		ZeroMemory(&bufDesc, sizeof(D3D11_BUFFER_DESC));
+		bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufDesc.CPUAccessFlags = 0;
+		bufDesc.Usage = D3D11_USAGE_DEFAULT;
+		bufDesc.ByteWidth = sizeof(VertexParams);
+		hr = apDevice->CreateBuffer(&bufDesc, nullptr, mpVertexParamsBuffer.ReleaseAndGetAddressOf());
+
 		return hr;
 	}
 
@@ -52,6 +92,7 @@ namespace tde
 		{
 			mesh.DestroyBuffers();
 		}
+		SAFE_RELEASE(mpVertexParamsBuffer);
 	}
 
 	bool Model::PrivLoadModel(const char* aPath)
@@ -65,7 +106,8 @@ namespace tde
 			aiProcess_GenNormals |
 			aiProcess_PreTransformVertices |
 			aiProcess_GenUVCoords | 
-			aiProcess_FlipUVs);
+			aiProcess_FlipUVs | 
+			aiProcess_FlipWindingOrder);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
 		{
@@ -129,6 +171,23 @@ namespace tde
 		}
 	}
 
+	void Mesh::Draw(
+		DirectX::CXMMATRIX aWorldMatrix,
+		DirectX::CXMMATRIX aInverseWorldMatrix,
+		DirectX::CXMMATRIX aViewProjMatrix,	// world view projection matrix
+		ID3D11DeviceContext* apContext, 
+		std::shared_ptr<VertexShader> apVertexShader, 
+		std::shared_ptr<PixelShader> apPixelShader) const
+	{
+		UINT strides[] = { sizeof(MeshVertex) };
+		UINT offsets[] = { 0 };
+		apContext->IASetVertexBuffers(0, 1, mpVertexBuffer.GetAddressOf(), strides, offsets);
+		apContext->IASetIndexBuffer(mpIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+		apContext->PSSetConstantBuffers(1, 1, mpMaterialBuffer.GetAddressOf());
+
+		apContext->DrawIndexed(mIndices.size(), 0, 0);
+	}
+
 	HRESULT Mesh::CreateBuffers(ID3D11Device* apDevice)
 	{
 		HRESULT hr;
@@ -136,6 +195,7 @@ namespace tde
 		D3D11_SUBRESOURCE_DATA initialData = { 0 };
 		D3D11_BUFFER_DESC bufferDescription = { 0 };
 
+		//	create vertex buffer
 		initialData.pSysMem = &mVertices[0];
 		initialData.SysMemPitch = sizeof(MeshVertex);
 		initialData.SysMemSlicePitch = 0;
@@ -151,6 +211,9 @@ namespace tde
 			&initialData, 
 			mpVertexBuffer.ReleaseAndGetAddressOf());
 
+		RETURN_IF_FAILED(hr);
+
+		//	create index buffer
 		mIndexCount = mIndices.size();
 
 		ZeroMemory(&bufferDescription, sizeof(bufferDescription));
@@ -169,6 +232,30 @@ namespace tde
 			&bufferDescription, 
 			&initialData, 
 			mpIndexBuffer.ReleaseAndGetAddressOf());
+
+		RETURN_IF_FAILED(hr);
+
+		Material material;
+		material.mAmbientColor = DirectX::XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		material.mAmbientCoef = 0.2f;
+		material.mDiffuseColor = DirectX::XMVectorSet(0.75f, 0.75f, 0.75f, 1.0f);
+		material.mDiffuseCoef = 0.6f;
+		material.mSpecularColor = DirectX::XMVectorSet(0.8f, 0.8f, 0.8f, 1.0f);
+		material.mSpecularCoef = 0.2f;
+		material.mEmissiveColor = DirectX::XMVectorZero();
+		material.mEmissiveCoef = 0.0f;
+		material.mSpecularPower = 4;
+		material.mUseTexture = false;
+
+		//	create constant buffer for material
+		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDescription.ByteWidth = sizeof(Material);
+		initialData.pSysMem = &material;
+		initialData.SysMemPitch = sizeof(Material);
+		hr = apDevice->CreateBuffer(
+			&bufferDescription,
+			&initialData,
+			mpMaterialBuffer.ReleaseAndGetAddressOf());
 
 		return hr;
 	}

@@ -67,6 +67,12 @@
     <ClCompile Include="src\rendering\PixelShader.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\rendering\Light.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\RenderingSystem.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -133,6 +139,18 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\rendering\PixelShader.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\BaseCache.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\ServiceLocator.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\Light.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\RenderingSystem.h">
       <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>

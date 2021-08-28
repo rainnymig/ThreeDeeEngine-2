@@ -3,7 +3,7 @@
 
 namespace tde
 {
-	VertexShader::VertexShader(LPCWSTR aVsPath, ID3D11Device* apDevice)
+	VertexShader::VertexShader(LPCWSTR aVsPath, const D3D11_INPUT_ELEMENT_DESC* apLayout, UINT aLayoutElementCount, ID3D11Device* apDevice)
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> pVertexShaderBlob;
 		D3DReadFileToBlob(aVsPath, pVertexShaderBlob.ReleaseAndGetAddressOf());
@@ -12,7 +12,12 @@ namespace tde
 			pVertexShaderBlob->GetBufferSize(), 
 			nullptr, 
 			mpVertexShader.ReleaseAndGetAddressOf());
-		pVertexShaderBlob.Reset();
+
+		apDevice->CreateInputLayout(apLayout, aLayoutElementCount,
+			pVertexShaderBlob->GetBufferPointer(), pVertexShaderBlob->GetBufferSize(),
+			mpInputLayout.ReleaseAndGetAddressOf());
+
+		SAFE_RELEASE(pVertexShaderBlob);
 	}
 
 	VertexShader::VertexShader(VertexShader&& aOther) noexcept
@@ -42,4 +47,10 @@ namespace tde
 	{
 		return mpVertexShader.Get();
 	}
+
+	void VertexShader::SetInputLayout(ID3D11DeviceContext* apContext) const
+	{
+		apContext->IASetInputLayout(mpInputLayout.Get());
+	}
+
 }
