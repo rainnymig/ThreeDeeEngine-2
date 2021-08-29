@@ -132,9 +132,6 @@
     <ClInclude Include="src\rendering\Model.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\stb_image.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="src\rendering\VertexShader.h">
       <Filter>Rendering</Filter>
     </ClInclude>

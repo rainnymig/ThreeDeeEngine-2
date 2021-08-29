@@ -50,8 +50,6 @@
 #include "CommonStates.h"
 #include "SimpleMath.h"
 
-#include "common/stb_image.h"
-
 #include <algorithm>
 #include <functional>
 #include <cmath>

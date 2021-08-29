@@ -366,3 +366,6 @@ DirectXTK/
 
 # assimp
 assimp/
+
+#external includes
+external_includes/
