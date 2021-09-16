@@ -7,6 +7,7 @@
 #include "common/BaseCache.h"
 #include "rendering/PixelShader.h"
 #include "rendering/VertexShader.h"
+#include "rendering/RenderingStateCache.h"
 
 namespace tde
 {
@@ -73,6 +74,10 @@ namespace tde
         {
             PixelShaderCacheLocator::Provide(std::make_shared<BaseCache<std::string, std::shared_ptr<PixelShader>>>());
         }
+
+        //  create rendering state caches
+        provideRenderingStateCaches();
+
 
         //  save the pointer to the Game object so that you can use its members in WndProc
         SetWindowLongPtr(pGame->mpWindow->GetWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pGame.get()));
@@ -164,8 +169,11 @@ namespace tde
         const double aDeltaTime)
     {
         mpRenderer->Clear();
-
+        
+        mpRenderer->SetRenderToOffscreenTarget();
         mpScene->Render(mpRenderer->GetImmediateContext(), aDeltaTime);
+        mpRenderer->SetRenderToOnscreenTarget();
+        mpScene->PostProcess(mpRenderer->GetImmediateContext(), mpRenderer->GetRawRenderTargetSRV(), mpRenderer->GetDepthStencilSRV(), aDeltaTime);
 
         mpRenderer->Present();
     }
@@ -206,6 +214,10 @@ namespace tde
     void Game::PrivOnWindowSizeChanged(int aWidth, int aHeight)
     {
         mpRenderer->OnWindowSizeChanged(aWidth, aHeight);
+        if (mpScene)
+        {
+            mpScene->OnScreenSizeChange(aWidth, aHeight);
+        }
     }
 
     LRESULT Game::PrivWindProc(

@@ -33,7 +33,12 @@ namespace tde
 		return XMMatrixPerspectiveFovLH(XMConvertToRadians(verticalFov), aspectRatio, nearPlane, farPlane);
 	}
 
-	DirectX::XMMATRIX BaseCamera::GetViewMatrix()
+	DirectX::XMMATRIX SimpleCamera::GetCameraWorldMatrix()
+	{
+		return XMMatrixInverse(nullptr, GetViewMatrix());
+	}
+
+	XMMATRIX BaseCamera::GetViewMatrix()
 	{
 		if (mIsTransformDirty)
 		{
@@ -46,7 +51,7 @@ namespace tde
 		return mViewMatrix;
 	}
 
-	DirectX::XMMATRIX BaseCamera::GetProjectionMatrix()
+	XMMATRIX BaseCamera::GetProjectionMatrix()
 	{
 		if (mIsProjectionDirty)
 		{
@@ -56,22 +61,47 @@ namespace tde
 		return mProjectionMatrix;
 	}
 
+	DirectX::XMMATRIX BaseCamera::GetCameraWorldMatrix()
+	{
+		return XMMatrixInverse(nullptr, GetViewMatrix());
+	}
+
 	void BaseCamera::Update(const float aDeltaTime)
 	{
+	}
+
+	XMVECTOR BaseCamera::GetForwardVector() const
+	{
+		XMVECTOR forward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+		return XMVector3Rotate(forward, mRotation);
+	}
+
+	XMVECTOR BaseCamera::GetRightVector() const
+	{
+		XMVECTOR right = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+		return XMVector3Rotate(right, mRotation);
+	}
+
+	XMVECTOR BaseCamera::GetUpVector() const
+	{
+		XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		return XMVector3Rotate(up, mRotation);
 	}
 
 	FreeFlightCamera::FreeFlightCamera(HWND aWindowHandle)
 	{
 		mpMouse = std::make_unique<Mouse>();
 		mpKeyboard = std::make_unique<Keyboard>();
+		mKeys.Reset();
+		mMouseButtons.Reset();
 		mpMouse->SetWindow(aWindowHandle);
 	}
 
 	void FreeFlightCamera::Update(const float aDeltaTime)
 	{
-		static constexpr float CAMERA_ROTATION_SPEED = XMConvertToRadians(45.0f);
+		static constexpr float CAMERA_ROTATION_SPEED = XMConvertToRadians(25.0f);
 		static constexpr float CAMERA_MOVE_SPEED_SLOW = 2.0f;
-		static constexpr float CAMERA_MOVE_SPEED_NORMAL = 5.0f;
+		static constexpr float CAMERA_MOVE_SPEED_NORMAL = 8.0f;
 		static constexpr float CAMERA_MOVE_SPEED_FAST = 20.0f;
 
 		static XMVECTOR currentVelocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
@@ -80,7 +110,9 @@ namespace tde
 
 		auto keyboard = mpKeyboard->GetState();
 		auto mouse = mpMouse->GetState();
-
+		mKeys.Update(keyboard);
+		mMouseButtons.Update(mouse);
+		
 		if (mouse.positionMode == Mouse::MODE_RELATIVE)
 		{
 			float invertY = mInvertY ? -1.0f : 1.0f;
@@ -88,18 +120,23 @@ namespace tde
 			float pitchDelta = invertY * static_cast<float>(mouse.y) * CAMERA_ROTATION_SPEED * aDeltaTime;
 			float yawDelta = invertX * static_cast<float>(mouse.x) * CAMERA_ROTATION_SPEED * aDeltaTime;
 
-			XMVECTOR rotationDelta = XMQuaternionRotationRollPitchYaw(pitchDelta, yawDelta, 0.0f);
-			SetRotation(XMQuaternionMultiply(rotationDelta, mRotation));
+			mPitch += pitchDelta;
+			mYaw += yawDelta;
+
+			SetRotation(XMQuaternionRotationRollPitchYaw(mPitch, mYaw, 0.0f));
 		}
 
-		mpMouse->SetMode(mouse.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		if (mKeys.pressed.V)
+		{
+			mpMouse->SetMode(mouse.positionMode == Mouse::MODE_ABSOLUTE ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		}
 
 		float movementX = static_cast<int>(keyboard.D || keyboard.Right) - static_cast<int>(keyboard.A || keyboard.Left);
 		float movementZ = static_cast<int>(keyboard.W || keyboard.Up) - static_cast<int>(keyboard.S || keyboard.Down);
 		float movementY = static_cast<int>(keyboard.Z || keyboard.PageUp) - static_cast<int>(keyboard.C || keyboard.PageDown);
 		targetVelocity = XMVectorSet(movementX, movementY, movementZ, 0.0f) * CAMERA_MOVE_SPEED_NORMAL;
 
-		currentVelocity = SmoothDamp(currentVelocity, targetVelocity, currentAcceleration, 0.2f, aDeltaTime);
+		currentVelocity = SmoothDamp(currentVelocity, targetVelocity, currentAcceleration, 0.1f, aDeltaTime);
 
 		SetPosition(mPosition + SimpleMath::Vector4(XMVector3Rotate(currentVelocity * aDeltaTime, mRotation)));
 	}

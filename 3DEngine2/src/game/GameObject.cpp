@@ -26,7 +26,8 @@ namespace tde
 
 	void SimpleModelGameObject::Update(const float aDeltaTime)
 	{
-		mWorldMatrix *= XMMatrixRotationAxis({ 0.0f, 1.0f, 0.0f, 0.0f }, XMConvertToRadians(aDeltaTime * 45));
+		//	rotate
+		//mWorldMatrix *= XMMatrixRotationAxis({ 0.0f, 1.0f, 0.0f, 0.0f }, XMConvertToRadians(aDeltaTime * 45));
 	}
 
 	void SimpleModelGameObject::Render(ID3D11DeviceContext1* apContext, const float aDeltaTime)

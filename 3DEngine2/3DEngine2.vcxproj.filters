@@ -73,6 +73,15 @@
     <ClCompile Include="src\rendering\RenderingSystem.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\rendering\SkyRenderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\RenderingStateCache.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\CubeWorldRenderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -150,12 +159,27 @@
     <ClInclude Include="src\rendering\RenderingSystem.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="src\rendering\SkyRenderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\RenderingStateCache.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\CubeWorldRenderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\BasicVS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="src\shaders\PhongPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shaders\SkyVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shaders\SkyPS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -8,6 +8,7 @@ namespace tde
 	class BaseCamera;
 	class VertexShader;
 	class PixelShader;
+	class SkyRenderer;
 
 	class Scene
 	{
@@ -16,13 +17,21 @@ namespace tde
 		void Init(ID3D11Device1* apDevice, HWND aWindowHandle);
 		void Update(const float aDeltaTime);
 		void Render(ID3D11DeviceContext1* apContext, const float aDeltaTime);
+		void PostProcess(ID3D11DeviceContext1* apContext, 
+			ID3D11ShaderResourceView* apRawRenderTargetSRV, 
+			ID3D11ShaderResourceView* apDepthStencilSRV, 
+			const float aDeltaTime);
 		void Destroy();
+
+
+		void OnScreenSizeChange(int aWidth, int aHeight);
 
 	private:
 
 		Lights mLights;
 		
 		std::vector<std::shared_ptr<IGameObject>> mGameObjects;
+		std::shared_ptr<SkyRenderer> mpSkyRenderer;
 		std::shared_ptr<BaseCamera> mpCamera;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mpLightBuffer;
 

@@ -23,7 +23,7 @@ namespace tde
 											HWND				aWindowHandle,
 											RECT				aClientRect,
 											DXGI_FORMAT			aBackBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
-											DXGI_FORMAT			aDepthStencilBufferFormat = DXGI_FORMAT_D32_FLOAT,
+											DXGI_FORMAT			aDepthStencilBufferFormat = DXGI_FORMAT_R24G8_TYPELESS,
 											UINT				aBackBufferCount = 2,
 											D3D_FEATURE_LEVEL	aMinFeatureLevel = D3D_FEATURE_LEVEL_11_0,
 											UINT				aOptions = OPTION_FLIP_PRESENT);
@@ -43,6 +43,8 @@ namespace tde
 		virtual void					Render(
 											const double		aDeltaTime) override;
 		void							Clear();
+		void							SetRenderToOffscreenTarget();
+		void							SetRenderToOnscreenTarget();
 		void							Present();
 		void							AddToRenderList(
 											std::shared_ptr<IRenderable>	apRenderable);
@@ -54,8 +56,12 @@ namespace tde
 		auto							GetSwapChain() const noexcept { return mpDxgiSwapChain.Get(); }
 		ID3D11Texture2D*				GetRenderTarget() const noexcept { return mpRenderTarget.Get(); }
 		ID3D11RenderTargetView*			GetRenderTargetView() const noexcept { return mpRenderTargetView.Get(); }
+		ID3D11Texture2D*				GetRawRenderTarget() const noexcept { return mpRawRenderTarget.Get(); }
+		ID3D11RenderTargetView*			GetRawRenderTargetView() const noexcept { return mpRawRenderTargetView.Get(); }
+		ID3D11ShaderResourceView*		GetRawRenderTargetSRV() const noexcept { return mpRawRenderTargetSRV.Get(); }
 		ID3D11Texture2D*				GetDepthStencil() const noexcept { return mpDepthStencil.Get(); }
 		ID3D11DepthStencilView*			GetDepthStencilView() const noexcept { return mpDepthStencilView.Get(); }
+		ID3D11ShaderResourceView*		GetDepthStencilSRV() const noexcept { return mpDepthStencilSRV.Get(); }
 		D3D11_VIEWPORT					GetViewport() const noexcept { return mViewport; }
 		HWND							GetWindowHandle() const noexcept { return mWindowHandle; }
 		RECT							GetWindowRect() const noexcept { return mWindowRect; }
@@ -86,10 +92,17 @@ namespace tde
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext1>					mpD3d11ImmediateContext;
 		Microsoft::WRL::ComPtr<IDXGISwapChain1>							mpDxgiSwapChain;
 
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>							mpRawRenderTarget;
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>					mpRawRenderTargetView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>				mpRawRenderTargetSRV;
+
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>							mpRenderTarget;
-		Microsoft::WRL::ComPtr<ID3D11Texture2D>							mpDepthStencil;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>					mpRenderTargetView;
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>							mpDepthStencil;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>					mpDepthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>				mpDepthStencilSRV;
+		
 		D3D11_VIEWPORT													mViewport;
 
 		HWND															mWindowHandle;

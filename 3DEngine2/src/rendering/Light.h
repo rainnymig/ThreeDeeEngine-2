@@ -2,7 +2,7 @@
 
 namespace tde
 {
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 4
 
 	enum class LightType
 	{

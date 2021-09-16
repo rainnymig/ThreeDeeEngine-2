@@ -104,10 +104,10 @@ namespace tde
 			aiProcess_JoinIdenticalVertices | 
 			aiProcess_MakeLeftHanded |
 			aiProcess_GenNormals |
+			aiProcess_FixInfacingNormals |
 			aiProcess_PreTransformVertices |
 			aiProcess_GenUVCoords | 
-			aiProcess_FlipUVs | 
-			aiProcess_FlipWindingOrder);
+			aiProcess_FlipUVs);
 
 		if (!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
 		{
@@ -132,6 +132,8 @@ namespace tde
 		}
 
 		aiMatrix4x4 totalTransform = aParentTransform * apNode->mTransformation;
+		aiMatrix4x4 totalTransformForNormal = totalTransform;
+		totalTransformForNormal = totalTransformForNormal.Inverse().Transpose();
 
 		for (int i = 0; i < apNode->mNumMeshes; i++)
 		{
@@ -141,13 +143,15 @@ namespace tde
 			for (int j = 0; j < importedMesh->mNumVertices; j++)
 			{
 				auto transformedVertex = importedMesh->mVertices[j];
+				auto transformedNormal = importedMesh->mNormals[j];
 				transformedVertex *= totalTransform;
+				transformedNormal *= totalTransformForNormal;
 				mesh.mVertices[j].mPosition.x = transformedVertex.x;
 				mesh.mVertices[j].mPosition.y = transformedVertex.y;
 				mesh.mVertices[j].mPosition.z = transformedVertex.z;
-				mesh.mVertices[j].mNormal.x = importedMesh->mNormals[j].x;
-				mesh.mVertices[j].mNormal.y = importedMesh->mNormals[j].y;
-				mesh.mVertices[j].mNormal.z = importedMesh->mNormals[j].z;
+				mesh.mVertices[j].mNormal.x = transformedNormal.x;
+				mesh.mVertices[j].mNormal.y = transformedNormal.y;
+				mesh.mVertices[j].mNormal.z = transformedNormal.z;
 				if (importedMesh->mTextureCoords[0])
 				{
 					mesh.mVertices[j].mTexCoord.x = importedMesh->mTextureCoords[0][j].x;
@@ -236,7 +240,7 @@ namespace tde
 		RETURN_IF_FAILED(hr);
 
 		Material material;
-		material.mAmbientColor = DirectX::XMVectorSet(0.5f, 0.5f, 0.5f, 1.0f);
+		material.mAmbientColor = DirectX::XMVectorSet(0.75f, 0.9f, 0.9f, 1.0f);
 		material.mAmbientCoef = 0.2f;
 		material.mDiffuseColor = DirectX::XMVectorSet(0.75f, 0.75f, 0.75f, 1.0f);
 		material.mDiffuseCoef = 0.6f;

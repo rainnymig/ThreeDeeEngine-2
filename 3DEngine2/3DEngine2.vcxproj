@@ -212,10 +212,13 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\rendering\Camera.cpp" />
+    <ClCompile Include="src\rendering\CubeWorldRenderer.cpp" />
     <ClCompile Include="src\rendering\Light.cpp" />
     <ClCompile Include="src\rendering\Model.cpp" />
     <ClCompile Include="src\rendering\PixelShader.cpp" />
+    <ClCompile Include="src\rendering\RenderingStateCache.cpp" />
     <ClCompile Include="src\rendering\RenderingSystem.cpp" />
+    <ClCompile Include="src\rendering\SkyRenderer.cpp" />
     <ClCompile Include="src\rendering\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -245,10 +248,13 @@
     <ClInclude Include="src\game\Scene.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\rendering\Camera.h" />
+    <ClInclude Include="src\rendering\CubeWorldRenderer.h" />
     <ClInclude Include="src\rendering\Light.h" />
     <ClInclude Include="src\rendering\Model.h" />
     <ClInclude Include="src\rendering\PixelShader.h" />
     <ClInclude Include="src\rendering\RenderingSystem.h" />
+    <ClInclude Include="src\rendering\RenderingStateCache.h" />
+    <ClInclude Include="src\rendering\SkyRenderer.h" />
     <ClInclude Include="src\rendering\VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -267,6 +273,18 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\SkyVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\shaders\SkyPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
   </ItemGroup>

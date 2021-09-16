@@ -102,11 +102,21 @@ namespace tde
 
 	void DirectX11Renderer::Clear()
 	{
+		mpD3d11ImmediateContext->ClearRenderTargetView(mpRawRenderTargetView.Get(), DirectX::Colors::DarkGray);
 		mpD3d11ImmediateContext->ClearRenderTargetView(mpRenderTargetView.Get(), DirectX::Colors::DarkGray);
 		mpD3d11ImmediateContext->ClearDepthStencilView(mpDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		mpD3d11ImmediateContext->OMSetRenderTargets(1, mpRenderTargetView.GetAddressOf(), mpDepthStencilView.Get());
 
 		mpD3d11ImmediateContext->RSSetViewports(1, &mViewport);
+	}
+
+	void DirectX11Renderer::SetRenderToOffscreenTarget()
+	{
+		mpD3d11ImmediateContext->OMSetRenderTargets(1, mpRawRenderTargetView.GetAddressOf(), mpDepthStencilView.Get());
+	}
+
+	void DirectX11Renderer::SetRenderToOnscreenTarget()
+	{
+		mpD3d11ImmediateContext->OMSetRenderTargets(1, mpRenderTargetView.GetAddressOf(), nullptr);
 	}
 
 	void DirectX11Renderer::Present()
@@ -128,6 +138,7 @@ namespace tde
 		//	Discard the contents of the render target.
 		//	This is a valid operation only when the existing contents will be entirely
 		//	overwritten. If dirty or scroll rects are used, this call should be removed.
+		mpD3d11ImmediateContext->DiscardView(mpRawRenderTargetView.Get());
 		mpD3d11ImmediateContext->DiscardView(mpRenderTargetView.Get());
 
 		if (mpDepthStencilView)
@@ -287,8 +298,12 @@ namespace tde
 		//	Clear the previous window size specific context.
 		ID3D11RenderTargetView* nullViews[] = { nullptr };
 		mpD3d11ImmediateContext->OMSetRenderTargets(_countof(nullViews), nullViews, nullptr);
+		mpRawRenderTargetView.Reset();
+		mpRawRenderTargetSRV.Reset();
 		mpRenderTargetView.Reset();
 		mpDepthStencilView.Reset();
+		mpDepthStencilSRV.Reset();
+		mpRawRenderTarget.Reset();
 		mpRenderTarget.Reset();
 		mpDepthStencil.Reset();
 		mpD3d11ImmediateContext->Flush();
@@ -367,6 +382,11 @@ namespace tde
 		ThrowIfFailed(mpDxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(mpRenderTarget.ReleaseAndGetAddressOf())));
 		CD3D11_RENDER_TARGET_VIEW_DESC rtvDesc(D3D11_RTV_DIMENSION_TEXTURE2D, mBackBufferFormat);
 		ThrowIfFailed(mpD3d11Device->CreateRenderTargetView(mpRenderTarget.Get(), &rtvDesc, mpRenderTargetView.ReleaseAndGetAddressOf()));
+		
+		CD3D11_TEXTURE2D_DESC rrtDesc(mBackBufferFormat, backBufferWidth, backBufferHeight, 1, 1, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+		ThrowIfFailed(mpD3d11Device->CreateTexture2D(&rrtDesc, nullptr, mpRawRenderTarget.ReleaseAndGetAddressOf()));
+		ThrowIfFailed(mpD3d11Device->CreateRenderTargetView(mpRawRenderTarget.Get(), nullptr, mpRawRenderTargetView.ReleaseAndGetAddressOf()));
+		ThrowIfFailed(mpD3d11Device->CreateShaderResourceView(mpRawRenderTarget.Get(), nullptr, mpRawRenderTargetSRV.ReleaseAndGetAddressOf()));
 
 		if (mDepthStencilFormat != DXGI_FORMAT_UNKNOWN)
 		{
@@ -376,10 +396,21 @@ namespace tde
 				backBufferHeight, 
 				1, //	This depth stencil view has only one texture.
 				1, //	Use a single mipmap level.
-				D3D11_BIND_DEPTH_STENCIL);
+				D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE);
 			ThrowIfFailed(mpD3d11Device->CreateTexture2D(&dsDesc, nullptr, mpDepthStencil.ReleaseAndGetAddressOf()));
-			CD3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
+			D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+			ZeroMemory(&dsvDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+			dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	// note that the format here is D24S8 in spite that the format of depth stencil buffer is R24G8
+													// because only D (depth) and S (stencil) are allowed in depth stencil view desc
+			dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			dsvDesc.Texture2D.MipSlice = 0;
 			ThrowIfFailed(mpD3d11Device->CreateDepthStencilView(mpDepthStencil.Get(), &dsvDesc, mpDepthStencilView.ReleaseAndGetAddressOf()));
+			CD3D11_SHADER_RESOURCE_VIEW_DESC dsSrvDesc;
+			dsSrvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+			dsSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			dsSrvDesc.Texture2D.MostDetailedMip = 0;
+			dsSrvDesc.Texture2D.MipLevels = 1;
+			ThrowIfFailed(mpD3d11Device->CreateShaderResourceView(mpDepthStencil.Get(), &dsSrvDesc, mpDepthStencilSRV.ReleaseAndGetAddressOf()));
 		}
 
 		//	Set the 3D rendering viewport to target the entire window.
@@ -631,8 +662,12 @@ namespace tde
 
 	void DirectX11Renderer::PrivHandleDeviceLost()
 	{
+		mpRawRenderTargetView.Reset();
+		mpRawRenderTargetSRV.Reset();
+		mpRawRenderTarget.Reset();
 		mpRenderTargetView.Reset();
 		mpDepthStencilView.Reset();
+		mpDepthStencilSRV.Reset();
 		mpRenderTarget.Reset();
 		mpDepthStencil.Reset();
 		mpDxgiSwapChain.Reset();

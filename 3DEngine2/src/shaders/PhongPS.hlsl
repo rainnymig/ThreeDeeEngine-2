@@ -1,4 +1,4 @@
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 4
 
 #define DIRECTIONAL_LIGHT 1
 #define POINT_LIGHT 2
@@ -96,6 +96,10 @@ float4 main(PixelData input) : SV_TARGET
     LightResult partResult;
 
     float3 viewDir = normalize(eyePosition.xyz - input.worldPosition);
+
+    //float normalCol = max(dot(viewDir, input.normal), 0);
+    
+    //return float4(-input.normal, 1.0f);
 
     [loop]
     for (int idx = 0; idx < MAX_LIGHTS; ++idx)
