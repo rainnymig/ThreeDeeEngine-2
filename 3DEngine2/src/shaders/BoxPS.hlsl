@@ -81,8 +81,8 @@ LightResult computePointLighting(LightSource light, float3 viewDir, float3 norma
     float3 lightDir = light.position.xyz - position;
     float lightDistance = length(lightDir);
     lightDir = normalize(lightDir);
-    float4 attenuatedLightColor = light.intensity * light.color * (1.0f / (1.0f + lightDistance * light.linearAttenuation + 
-                                                        lightDistance * lightDistance * light.quadraticAttenuation));
+    float4 attenuatedLightColor = light.intensity * light.color * (1.0f / (1.0f + lightDistance * light.linearAttenuation +
+        lightDistance * lightDistance * light.quadraticAttenuation));
     //float4 attenuatedLightColor = light.color * (1.0f / (1.0f + lightDistance * light.linearAttenuation +
     //    lightDistance * lightDistance * light.quadraticAttenuation));
     result.diffuse = computeLightDiffuse(attenuatedLightColor, lightDir, normal);

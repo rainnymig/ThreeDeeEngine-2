@@ -17,7 +17,7 @@ namespace tde
 	{
 		mpModel = Model::CreateModelFromFile(aModelFilename);
 		mpModel->CreateBuffers(apDevice);
-		mWorldMatrix = XMMatrixRotationAxis({ 0, 1.0f, 0, 0 }, XMConvertToRadians(-90.0f)) * XMMatrixScaling(0.01f, 0.01f, 0.01f);
+		mWorldMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationAxis({ 0, 1.0f, 0, 0 }, XMConvertToRadians(-90.0f)) * XMMatrixTranslation(-5.0f, 0.0f, 0.0f);
 		mpCamera = apCamera;
 		mpVertexShader = apVertexShader;
 		mpPixelShader = apPixelShader;
@@ -27,7 +27,7 @@ namespace tde
 	void SimpleModelGameObject::Update(const float aDeltaTime)
 	{
 		//	rotate
-		//mWorldMatrix *= XMMatrixRotationAxis({ 0.0f, 1.0f, 0.0f, 0.0f }, XMConvertToRadians(aDeltaTime * 45));
+		mWorldMatrix = DirectX::SimpleMath::operator*(XMMatrixRotationAxis({ 0.0f, 1.0f, 0.0f, 0.0f }, XMConvertToRadians(aDeltaTime * 45)), mWorldMatrix);
 	}
 
 	void SimpleModelGameObject::Render(ID3D11DeviceContext1* apContext, const float aDeltaTime)

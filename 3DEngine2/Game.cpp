@@ -162,7 +162,7 @@ namespace tde
     void Game::PrivUpdate(
         const double aDeltaTime)
     {
-        mpScene->Update(aDeltaTime);
+        mpScene->Update(mpRenderer->GetDevice(), aDeltaTime);
     }
 
     void Game::PrivRender(
@@ -171,7 +171,7 @@ namespace tde
         mpRenderer->Clear();
         
         mpRenderer->SetRenderToOffscreenTarget();
-        mpScene->Render(mpRenderer->GetImmediateContext(), aDeltaTime);
+        mpScene->Render(mpRenderer->GetDevice(), mpRenderer->GetImmediateContext(), aDeltaTime);
         mpRenderer->SetRenderToOnscreenTarget();
         mpScene->PostProcess(mpRenderer->GetImmediateContext(), mpRenderer->GetRawRenderTargetSRV(), mpRenderer->GetDepthStencilSRV(), aDeltaTime);
 

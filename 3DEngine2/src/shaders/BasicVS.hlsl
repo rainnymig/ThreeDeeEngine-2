@@ -1,7 +1,7 @@
 cbuffer TransformMatrices : register(b0)
 {
     matrix worldMatrix;
-    matrix inversedWorldMatrix;
+    matrix inversedTransposedWorldMatrix;
     matrix viewProjMatrix;
 }
 
@@ -27,7 +27,7 @@ VertexOutputData main(VertexData input)
     float4 v = float4(input.position, 1.0f);
     output.position = mul(worldViewProjMatrix, v);
     output.worldPosition = mul(worldMatrix, v).xyz;
-    output.normal = normalize(mul(inversedWorldMatrix, float4(input.normal, 1.0f)).xyz);
+    output.normal = normalize(mul(inversedTransposedWorldMatrix, float4(input.normal, 0.0f)).xyz);
     output.texCoord = input.texCoord;
 
     return output;

@@ -36,7 +36,7 @@ namespace tde
 
 		void Draw(
 			DirectX::CXMMATRIX aWorldMatrix,
-			DirectX::CXMMATRIX aInverseWorldMatrix,
+			DirectX::CXMMATRIX aInversedTransposedWorldMatrix,
 			DirectX::CXMMATRIX aViewProjMatrix,	// world view projection matrix
 			ID3D11DeviceContext* apContext,
 			std::shared_ptr<VertexShader> apVertexShader,

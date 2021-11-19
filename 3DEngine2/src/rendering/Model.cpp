@@ -22,9 +22,9 @@ namespace tde
 		ID3D11Buffer** appLightBuffer) const
 	{
 		//	update matrices of vertex shader constant buffer
-		DirectX::XMMATRIX inverseWorld = DirectX::XMMatrixInverse(nullptr, aWorldMatrix);
+		DirectX::XMMATRIX inversedTransposedWorld = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, aWorldMatrix));
 		VertexParams vParams{
-			aWorldMatrix, inverseWorld, aViewProjMatrix
+			aWorldMatrix, inversedTransposedWorld, aViewProjMatrix
 		};
 		apContext->UpdateSubresource(mpVertexParamsBuffer.Get(), 0, nullptr, &vParams, 0, 0);
 
@@ -37,7 +37,7 @@ namespace tde
 
 		for (const auto& aMesh : mMeshes)
 		{
-			aMesh.Draw(aWorldMatrix, inverseWorld, aViewProjMatrix, apContext, apVertexShader, apPixelShader);
+			aMesh.Draw(aWorldMatrix, inversedTransposedWorld, aViewProjMatrix, apContext, apVertexShader, apPixelShader);
 		}
 	}
 
@@ -177,7 +177,7 @@ namespace tde
 
 	void Mesh::Draw(
 		DirectX::CXMMATRIX aWorldMatrix,
-		DirectX::CXMMATRIX aInverseWorldMatrix,
+		DirectX::CXMMATRIX aInverseTransposedWorldMatrix,
 		DirectX::CXMMATRIX aViewProjMatrix,	// world view projection matrix
 		ID3D11DeviceContext* apContext, 
 		std::shared_ptr<VertexShader> apVertexShader, 
@@ -201,7 +201,7 @@ namespace tde
 
 		//	create vertex buffer
 		initialData.pSysMem = &mVertices[0];
-		initialData.SysMemPitch = sizeof(MeshVertex);
+		initialData.SysMemPitch = 0;
 		initialData.SysMemSlicePitch = 0;
 
 		bufferDescription.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -255,7 +255,7 @@ namespace tde
 		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bufferDescription.ByteWidth = sizeof(Material);
 		initialData.pSysMem = &material;
-		initialData.SysMemPitch = sizeof(Material);
+		initialData.SysMemPitch = 0;
 		hr = apDevice->CreateBuffer(
 			&bufferDescription,
 			&initialData,

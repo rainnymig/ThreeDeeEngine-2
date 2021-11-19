@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "common/DirectX11Renderer.h"
 
+#include <numeric>
+
 using Microsoft::WRL::ComPtr;
 
 namespace tde
@@ -280,7 +282,15 @@ namespace tde
 				D3D11_MESSAGE_ID hide[] =
 				{
 					D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+					//D3D11_MESSAGE_ID_DEVICE_SHADER_LINKAGE_SEMANTICNAME_NOT_FOUND
 				};
+				//std::vector<D3D11_MESSAGE_ID> hides;
+				//hides.resize(350 - 342);
+				//int start = 342;
+				//for (auto& i : hides) {
+				//	i = static_cast<D3D11_MESSAGE_ID>(start++);
+				//}
+				//hides.push_back(D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS);
 				D3D11_INFO_QUEUE_FILTER filter = {};
 				filter.DenyList.NumIDs = _countof(hide);
 				filter.DenyList.pIDList = hide;

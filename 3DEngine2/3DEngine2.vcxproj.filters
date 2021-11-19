@@ -182,5 +182,11 @@
     <FxCompile Include="src\shaders\SkyPS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="src\shaders\BoxVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shaders\BoxPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

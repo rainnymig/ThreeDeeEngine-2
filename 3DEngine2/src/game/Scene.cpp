@@ -41,6 +41,17 @@ namespace tde
 		{
 			VertexShaderCacheLocator::Get()->InsertIfNotExists("SkyVS", pSkyVS);
 		}
+		const D3D11_INPUT_ELEMENT_DESC boxVertexLayout[] =
+		{
+			{"POSITION",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TEXCOORD",		0, DXGI_FORMAT_R32_UINT,			0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		};
+		numElements = sizeof(boxVertexLayout) / sizeof(boxVertexLayout[0]);
+		std::shared_ptr<VertexShader> pBoxVS = std::make_shared<VertexShader>(L"shaders/BoxVS.cso", &boxVertexLayout[0], numElements, apDevice);
+		if (pBoxVS)
+		{
+			VertexShaderCacheLocator::Get()->InsertIfNotExists("BoxVS", pBoxVS);
+		}
 
 		std::shared_ptr<PixelShader> pPhongPS = std::make_shared<PixelShader>(L"shaders/PhongPS.cso", apDevice);
 		if (pPhongPS)
@@ -51,6 +62,11 @@ namespace tde
 		if (pSkyPS)
 		{
 			PixelShaderCacheLocator::Get()->InsertIfNotExists("SkyPS", pSkyPS);
+		}
+		std::shared_ptr<PixelShader> pBoxPS = std::make_shared<PixelShader>(L"shaders/BoxPS.cso", apDevice);
+		if (pBoxPS)
+		{
+			PixelShaderCacheLocator::Get()->InsertIfNotExists("BoxPS", pBoxPS);
 		}
 
 		//	create samplers
@@ -158,13 +174,13 @@ namespace tde
 		mLights.mLights[0].mType = static_cast<int>(LightType::DIRECTIONAL);
 		mLights.mLights[0].mColor = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
 		mLights.mLights[0].mDirection = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-		mLights.mLights[0].mIntensity = 200.0f;
+		mLights.mLights[0].mIntensity = 1.0f;
 
-		mLights.mLights[1].mIsEnabled = false;
+		mLights.mLights[1].mIsEnabled = true;
 		mLights.mLights[1].mType = static_cast<int>(LightType::DIRECTIONAL);
 		mLights.mLights[1].mColor = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-		mLights.mLights[1].mDirection = DirectX::XMVectorSet(1.0f, 0.5f, 1.0f, 0.0f);
-		mLights.mLights[1].mIntensity = 100.0f;
+		mLights.mLights[1].mDirection = DirectX::XMVectorSet(-1.0f, -4.0f, 1.0f, 0.0f);
+		mLights.mLights[1].mIntensity = 0.5f;
 
 		mLights.mLights[2].mIsEnabled = false;
 		mLights.mLights[3].mIsEnabled = false;
@@ -186,9 +202,15 @@ namespace tde
 		DirectX::XMVECTOR hellColor = XMVectorSet(0.7980f, 0.7980f, 0.7980f, 1.0f);
 		mpSkyRenderer = std::make_shared<SkyRenderer>(apDevice, mpCamera, mpLightBuffer.GetAddressOf(), heavenColor, hellColor);
 
+		//	create cube world renderer
+		std::shared_ptr<CubeWorld> cubeWorld = createCubeWorldFromBinaryFile("test_cube_world", 8, 8, 8);
+		mpCubeWorldRenderer = std::make_shared<CubeWorldRenderer>(apDevice, cubeWorld, mpCamera, mpLightBuffer.GetAddressOf());
+		mpCubeWorldRenderer->SetPosition({ 0.0f, 0.0, 10.0f, 1.0f });
+		mpCubeWorldRenderer->SetScale(1.0f);
+		mpCubeWorldRenderer->UpdateBuffer(apDevice);
 	}
 
-	void Scene::Update(const float aDeltaTime)
+	void Scene::Update(ID3D11Device* apDevice, const float aDeltaTime)
 	{
 		mpCamera->Update(aDeltaTime);
 		for (auto pGameObjects : mGameObjects)
@@ -198,7 +220,7 @@ namespace tde
 		mpSkyRenderer->Update(aDeltaTime);
 	}
 
-	void Scene::Render(ID3D11DeviceContext1* apContext, const float aDeltaTime)
+	void Scene::Render(ID3D11Device* apDevice, ID3D11DeviceContext1* apContext, const float aDeltaTime)
 	{
 		PrivUpdateLights(apContext, aDeltaTime);
 
@@ -210,6 +232,8 @@ namespace tde
 		{
 			pGameObjects->Render(apContext, aDeltaTime);
 		}
+
+		mpCubeWorldRenderer->Render(apContext, aDeltaTime);
 	}
 
 	void Scene::PostProcess(ID3D11DeviceContext1* apContext, ID3D11ShaderResourceView* apRawRenderTargetSRV, ID3D11ShaderResourceView* apDepthStencilSRV, const float aDeltaTime)

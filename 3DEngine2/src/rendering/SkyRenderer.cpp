@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "rendering/SkyRenderer.h"
 #include "rendering/Camera.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
-#include "RenderingStateCache.h"
+#include "rendering/VertexShader.h"
+#include "rendering/PixelShader.h"
+#include "rendering/RenderingStateCache.h"
 
 namespace tde 
 {
